@@ -1,0 +1,31 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4257
+
+\\\" vim-djangojump plugin is used for 
+\\\" jumping between url, view function and
+\\\" template immediately.
+\\\"
+\\\" note: now open vim at django project\\&#039s
+\\\" root path where has settings.py file
+\\\"
+\\\" author: zack
+\\\"
+\\\" tip:
+\\\" 1. url => view function
+\\\"    :DUrltoview /app1/overview/
+\\\"
+\\\" 2. view function ==> template file
+\\\"    :DViewtotpl (at line which contains
+\\\"    template\\&#039s name)
+\\\"
+\\\"    example code:
+\\\"       ....
+\\\"    (*)   return render_to_response(\\\"index.html\\\")
+\\\"
+\\\"    cursor at this line(*) and call command 
+\\\"    :DViewtotpl
+\\\"
+\\\" 3. template file ==> view function
+\\\"    :DTpltoview
+\\\"
+\\\" 4. reload cache
+\\\"    :DReloadCache
