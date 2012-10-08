@@ -190,6 +190,8 @@ def url_to_view(url):
         if regexp:
             if url.find('/') == 0:
                 url = url[1:]
+            if not url.endswith('/'):
+                url += '/'
             match = re.match(regexp, url)
             if match:
                 module_abs_path = pattern.get('module')
@@ -351,3 +353,9 @@ com! DReloadCache python reload_to_cache()
 com! Dfindcss python find_css()
 com! Dfindjs python find_js()
 com! DGotoscript python go_to_js_css()
+
+nmap <c-d><c-t> :DTpltoview<CR>
+nmap <c-d><c-v> :DViewtotpl<CR>
+nmap <c-d><c-u> :DUrltoview /
+nmap <c-d><c-s> :DGotoscript<CR>
+nmap <c-d><c-r> :DReloadCache<CR>

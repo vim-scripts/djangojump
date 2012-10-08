@@ -34,7 +34,8 @@ tip:
 
 5. reload cache 
    :DReloadCache
- 
+
+
 install details
 ===============
 
@@ -44,3 +45,21 @@ linux platform is ok,  it\'s not tested under windows platform, maybe it can wor
 2. open vim at django project root folder, then you can use these commands 
 
 note: this plugin need python2.6+ support
+
+
+hotkeys
+===============
+template ==> view function
+nmap <c-d><c-t> :DTpltoview<CR>
+
+view function ==> view
+nmap <c-d><c-v> :DViewtotpl<CR>
+
+url ==>  view function
+nmap <c-d><c-u> :DUrltoview /
+
+template ==> script(js, css)
+nmap <c-d><c-s> :DGotoscript<CR>
+
+reload cache if add file or remove file
+nmap <c-d><c-r> :DReloadCache<CR>
