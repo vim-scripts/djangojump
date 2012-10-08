@@ -1,13 +1,10 @@
-This is a mirror of http://www.vim.org/scripts/script.php?script_id=4257
-
 description
-=============
-
+============
 vim-djangojump plugin is used for 
 jumping between url, view function and 
 template immediately. 
 
-note: now open vim at django project\&#039s 
+note: now open vim at django project\\'s 
 root path where has settings.py file 
 
 author: zack 
@@ -19,7 +16,7 @@ tip:
 
 2. view function ==> template file 
    :DViewtotpl (at line which contains 
-   template\&#039s name) 
+   template\\'s name) 
 
    example code: 
       .... 
@@ -37,37 +34,13 @@ tip:
 
 5. reload cache 
    :DReloadCache
-
-6. url ==> template file
-   :DUrltotpl /xxx/yyy/
-
+ 
 install details
-=============
+===============
 
-linux platform is ok,  it&#039s not tested under windows platform, maybe it can work correctly. 
+linux platform is ok,  it\'s not tested under windows platform, maybe it can work correctly. 
 
 1. copy djangojump.vim to ~/.vim/plugin/ folder 
 2. open vim at django project root folder, then you can use these commands 
 
-note: this plugin need python2.6+ support, at first opening vim, it would be slow, but after it would work normally.
-
-
-hotkeys
-===============
-template ==> view function
-nmap <c-d><c-t> :DTpltoview<CR>
-
-view function ==> view
-nmap <c-d><c-v> :DViewtotpl<CR>
-
-url ==>  view function
-nmap <c-d><c-u> :DUrltoview 
-
-template ==> script(js, css)
-nmap <c-d><c-s> :DGotoscript<CR>
-
-reload cache if add file or remove file
-nmap <c-d><c-r> :DReloadCache<CR>
-
-url ==> template file
-nmap <c-d><c-i> :DUrltotpl<CR>
+note: this plugin need python2.6+ support

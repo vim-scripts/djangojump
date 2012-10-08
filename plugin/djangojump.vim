@@ -26,7 +26,11 @@
 " 3. template file ==> view function
 "    :DTpltoview
 "
-" 4. reload cache
+" 4. js which template includes ==> js source file
+"    css which template includes ==> css source file
+"    :DGotoscript
+"
+" 5. reload cache
 "    :DReloadCache
 "
 " *********************************
@@ -64,7 +68,7 @@ else:
 
 def load_tplname_to_cache():
     
-    import pickle
+    import cPickle
 
     if not os.path.exists(CONFIG_PATH):
         os.mkdir(CONFIG_PATH) 
@@ -75,12 +79,12 @@ def load_tplname_to_cache():
     pattern_cache_file = os.path.join(CONFIG_PATH, 'pattern_cache')
     if os.path.exists(cache_file):
         try:
-            template_view_map_cache = pickle.load(open(cache_file, 'r'))
+            template_view_map_cache = cPickle.load(open(cache_file, 'r'))
         except Exception,e:
             print e
 
         try:
-            pattern_cache = pickle.load(open(pattern_cache_file, 'r'))
+            pattern_cache = cPickle.load(open(pattern_cache_file, 'r'))
         except Exception,e:
             print e
 
@@ -172,8 +176,8 @@ def load_tplname_to_cache():
     load_tpl_view_to_cache(urlpatterns)
 
     try:
-        pickle.dump(template_view_map_cache, open(cache_file, 'w'))
-        pickle.dump(pattern_cache, open(pattern_cache_file, 'w'))
+        cPickle.dump(template_view_map_cache, open(cache_file, 'w'))
+        cPickle.dump(pattern_cache, open(pattern_cache_file, 'w'))
     except Exception, e:
         pass
 
@@ -274,9 +278,76 @@ def reload_to_cache():
     load_tplname_to_cache()
     print 'finish reload'
 
+def go_to_js_css():
+    line = vim.current.line
+    line = "".join(line)
+
+    match_css = re.search('<link.*rel="stylesheet".*>', line)
+    if match_css:
+        find_css()
+
+    match_js = re.search('<script.*type="text/javascript".*></script>', line)
+    if match_js:
+        find_js()
+
+def find_css():
+    line = vim.current.line
+    line = "".join(line)
+    
+    static_dir = None
+    try:
+        static_dir = settings.STATIC_ROOT
+    except:
+        return
+
+    match_css = re.search('<link.*rel="stylesheet".*>', line)
+    if match_css:
+        match = re.search('href=[\'\"].*\.css[\'\"]', line)
+        if match:
+            css = match.group()
+            css = css[6:len(css)-1]
+            css = css.split('/')[-1]
+
+            for dirpath, dirnames, filenames in os.walk(static_dir):
+                for fname in filenames:
+                    if fname == css:
+                        css_abspath = os.path.join(dirpath, fname)
+                        vim.command(":e %s" %css_abspath)
+                        return
+
+
+def find_js():
+    line = vim.current.line
+    line = "".join(line)
+    
+    static_dir = None
+    try:
+        static_dir = settings.STATIC_ROOT
+    except:
+        return
+    
+    match_js = re.search('<script.*type="text/javascript".*></script>', line)
+    if match_js:
+        match = re.search('src=[\'\"].*\.js[\'\"]', line)
+        if match:
+            js = match.group()
+            js = js[5:len(js)-1]
+            js = js.split('/')[-1]
+
+            for dirpath, dirnames, filenames in os.walk(static_dir):
+                for fname in filenames:
+                    if fname == js:
+                        js_abspath = os.path.join(dirpath, fname)
+                        vim.command(":e %s" %js_abspath)
+                        return
+
+
 EOF
 
 com! -nargs=1 DUrltoview python url_to_view(<f-args>)
 com! DViewtotpl python view_to_template()
 com! DTpltoview python template_to_view()
 com! DReloadCache python reload_to_cache()
+com! Dfindcss python find_css()
+com! Dfindjs python find_js()
+com! DGotoscript python go_to_js_css()
