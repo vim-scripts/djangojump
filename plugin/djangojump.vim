@@ -10,7 +10,7 @@
 "
 " tip:
 " 1. url => view function
-"    :DUrltoview /app1/overview/
+"    :DUrltoview /xxx/yyy/
 "
 " 2. view function ==> template file
 "    :DViewtotpl (at line which contains
@@ -32,6 +32,9 @@
 "
 " 5. reload cache
 "    :DReloadCache
+"
+" 6. url => template file
+"    :DUrltotpl /xxx/yyy/
 "
 " *********************************
 
@@ -56,6 +59,7 @@ sys.path.append(os.path.join(os.path.abspath('.'), '..'))
 
 template_cache_dir_map = {}
 template_view_map_cache = {}
+view_template_map_cache = {}
 pattern_cache = []
 
 try:
@@ -74,12 +78,15 @@ def load_tplname_to_cache():
         os.mkdir(CONFIG_PATH) 
 
     global template_view_map_cache
+    global view_template_map_cache
     global pattern_cache
     cache_file = os.path.join(CONFIG_PATH, 'template_view_map_cache')
+    cache_file_view_template = os.path.join(CONFIG_PATH, 'view_template_map_cache')
     pattern_cache_file = os.path.join(CONFIG_PATH, 'pattern_cache')
     if os.path.exists(cache_file):
         try:
             template_view_map_cache = cPickle.load(open(cache_file, 'r'))
+            view_template_map_cache = cPickle.load(open(cache_file_view_template, 'r'))
         except Exception,e:
             print e
 
@@ -172,11 +179,13 @@ def load_tplname_to_cache():
                                     if os.path.exists(tpl_abspath):
                                         view_at_line_num -= len(code_block)
                                         template_view_map_cache.setdefault(tpl_abspath, []).append({'path': module_abs_path, 'linenum': view_at_line_num})
+                                        view_template_map_cache.setdefault('%s#%s' %(module_abs_path, method_name), []).append(tpl_abspath)
     
     load_tpl_view_to_cache(urlpatterns)
 
     try:
         cPickle.dump(template_view_map_cache, open(cache_file, 'w'))
+        cPickle.dump(view_template_map_cache, open(cache_file_view_template, 'w'))
         cPickle.dump(pattern_cache, open(pattern_cache_file, 'w'))
     except Exception, e:
         pass
@@ -198,9 +207,28 @@ def url_to_view(url):
                 method_name = pattern.get('method')
                 vim.command(":set wrapscan")
                 vim.command(":e %s" %module_abs_path)
-                vim.command("/^def\_s%s" %method_name)
+                vim.command("/^def\_s%s(" %method_name)
                 break
-            
+                
+def url_to_template(url):
+    for pattern in pattern_cache:
+        regexp = pattern.get('regexp', None)
+        if regexp:
+            if url.find('/') == 0:
+                url = url[1:]
+            if not url.endswith('/'):
+                url += '/'
+            match = re.match(regexp, url)
+            if match:
+                module_abs_path = pattern.get('module')
+                method_name = pattern.get('method')
+
+                key = '%s#%s' %(module_abs_path, method_name)
+                for tplpath in view_template_map_cache.get(key, []):
+                    # TODO more, need a window to show all tplpath
+                    vim.command(":e %s" %tplpath)
+                    return
+
 
 def view_to_template():
     template_dirs = None
@@ -347,6 +375,7 @@ def find_js():
 EOF
 
 com! -nargs=1 DUrltoview python url_to_view(<f-args>)
+com! -nargs=1 DUrltotpl python url_to_template(<f-args>)
 com! DViewtotpl python view_to_template()
 com! DTpltoview python template_to_view()
 com! DReloadCache python reload_to_cache()
@@ -356,6 +385,7 @@ com! DGotoscript python go_to_js_css()
 
 nmap <c-d><c-t> :DTpltoview<CR>
 nmap <c-d><c-v> :DViewtotpl<CR>
-nmap <c-d><c-u> :DUrltoview /
+nmap <c-d><c-u> :DUrltoview 
+nmap <c-d><c-i> :DUrltotpl 
 nmap <c-d><c-s> :DGotoscript<CR>
 nmap <c-d><c-r> :DReloadCache<CR>
